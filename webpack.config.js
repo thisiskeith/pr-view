@@ -1,3 +1,4 @@
+var CopyWebpackPlugin = require('copy-webpack-plugin')
 var path = require('path')
 var webpack = require('webpack')
 
@@ -9,17 +10,18 @@ module.exports = {
     ],
     output: {
         path: path.join(__dirname, 'dist'),
-        filename: 'bundle.js',
-        publicPath: '/static/'
+        filename: (process.env.NODE_ENV === 'production') 
+            ? 'js/bundle.js' : 'bundle.js',
+        publicPath: '/js/'
     },
     plugins: [
         new webpack.optimize.OccurenceOrderPlugin(),
         new webpack.HotModuleReplacementPlugin(),
-        new webpack.DefinePlugin({
-            'process.env': {
-                'NODE_ENV': JSON.stringify('production')
-            }
-        })
+        new CopyWebpackPlugin([
+            { from: 'css', to: 'css' },
+            { from: 'images', to: 'images' },
+            { from: 'index.html' }
+        ])
     ],
     module: {
         loaders: [

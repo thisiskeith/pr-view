@@ -245,8 +245,9 @@ function mapStateToProps(state) {
         const len = assignedToUsers.length
 
         for (i; i < len; i += 1) {
-            if (pr.assignee && assignedToUsers[i].name === pr.assignee.login ||
-                    assignedToUsers[i].name === 'Unassigned') {
+
+            if ((pr.assignee && assignedToUsers[i].name === pr.assignee.login) ||
+                assignedToUsers[i].name === assignedTo.name) {
                 existing = true
                 assignedToUsers[i].count += 1
                 break
