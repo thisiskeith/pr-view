@@ -15,10 +15,23 @@ const githubAPIPreviewHeader = {
     'Accept': 'application/vnd.github.cerberus-preview' 
 }
 
+export const RECEIVE_PULL_REQUEST_LABELS = 'RECEIVE_PULL_REQUEST_LABELS'
 export const RECEIVE_PULL_REQUESTS = 'RECEIVE_PULL_REQUESTS'
 export const RECEIVE_REPOS = 'RECEIVE_REPOS'
+export const REQUEST_PULL_REQUEST_LABELS = 'REQUEST_PULL_REQUEST_LABELS'
 export const REQUEST_PULL_REQUESTS = 'REQUEST_PULL_REQUESTS'
 export const REQUEST_REPOS = 'REQUEST_REPOS'
+
+function receivePullRequestLabels(githubOrg, repo, prNumber, json) {
+    return {
+        type: RECEIVE_PULL_REQUEST_LABELS,
+        githubOrg,
+        labels: json,
+        prNumber,
+        receivedAt: Date.now(),
+        repo
+    }
+}
 
 function receivePullRequests(githubOrg, repo, json) {
     return {
@@ -39,6 +52,15 @@ function receiveRepos(githubOrg, json) {
     }
 }
 
+function requestPullRequestLabels(githubOrg, repo, prNumber) {
+    return {
+        type: REQUEST_PULL_REQUEST_LABELS,
+        githubOrg,
+        repo,
+        prNumber
+    }
+}
+
 function requestPullRequests(githubOrg, repo) {
     return {
         type: REQUEST_PULL_REQUESTS,
@@ -54,7 +76,24 @@ function requestRepos(githubOrg) {
     }
 }
 
-// Thunk async action creator
+// Thunk async action creators
+export function fetchPullRequestLabels(githubOrg, repo, prNumber) {
+
+    return function (dispatch) {
+
+        dispatch(requestPullRequestLabels(githubOrg, repo, prNumber))
+
+        return fetch(`https://api.github.com/repos/${githubOrg}/${repo}/issues/${prNumber}/labels`, {
+                headers: githubAuthHeader
+            })
+            .then(response => response.json())
+            .then(json => dispatch(
+                receivePullRequestLabels(githubOrg, repo, prNumber, json)
+            ))
+            .catch(err => console.error(err))
+    }
+}
+
 export function fetchPullRequests(githubOrg, repo) {
 
     return function (dispatch) {
@@ -68,12 +107,21 @@ export function fetchPullRequests(githubOrg, repo) {
                 )
             })
             .then(response => response.json())
-            .then(json => dispatch(receivePullRequests(githubOrg, repo, json)))
+            .then(json => {
+                
+                dispatch(receivePullRequests(githubOrg, repo, json))
+
+                // Fetch pr labels
+                if (json.length > 0) {
+                    json.forEach(pr => dispatch(
+                        fetchPullRequestLabels(githubOrg, repo, pr.number)
+                    ))
+                }
+            })
             .catch(err => console.error(err))
     }
 }
 
-// Thunk async action creator
 export function fetchRepos(githubOrg) {
 
     return function (dispatch) {
@@ -88,7 +136,7 @@ export function fetchRepos(githubOrg) {
 
                 dispatch(receiveRepos(githubOrg, json))
 
-                // Fetch pull request(s) for each repo
+                // Fetch pull requests for each repo
                 json.forEach(repo => dispatch(fetchPullRequests(githubOrg, repo.name)))
             })
             .catch(err => console.error(err))

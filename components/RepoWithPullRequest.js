@@ -22,6 +22,7 @@ const RepoWithPullRequest = ({
                 assigneeName={pr.assignee ? pr.assignee.login : null}
                 assigneeAvatarUrl={pr.assignee ? pr.assignee.avatar_url : null}
                 key={pr.id}
+                labels={pr.labels || []}
                 openedByAvatarUrl={pr.user.avatar_url}
                 openedByName={pr.user.login}
                 title={pr.title} />

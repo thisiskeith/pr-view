@@ -6,7 +6,7 @@ const PullRequestHeader = ({
 }) => (
     <div style={{
         padding: '10px 20px', 
-        backgroundColor: '#F78F1E'
+        backgroundColor: 'rgb(255, 211, 163)'
     }}>
         <div style={{
             borderRadius: '10px',

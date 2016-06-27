@@ -24,23 +24,46 @@ const style = {
 const PullRequestRow = ({
     assigneeAvatarUrl,
     assigneeName,
+    labels,
     openedByAvatarUrl,
     openedByName,
     title
 }) => (
     <div style={{
-        margin: 10,
         backgroundColor: 'white'
     }}>
         <div style={{
-            padding: '0 20px 20px',
-            border: '1px solid #ccc'
+            padding: '0 20px 10px',
+            border: '1px solid #efefef',
+            borderTop: 'none'
         }}>
-            <h3>{title}</h3>
+            <h3 style={{
+                display: 'inline-block',
+                margin: '10px 0'
+            }}>
+                {title}
+            </h3>
+            {
+                labels.length > 0 ?
+                    labels.map((label, i) => <span 
+                        key={i}
+                        style={{
+                            backgroundColor: `#${label.color}`,
+                            textTransform: 'uppercase',
+                            fontSize: '0.8em',
+                            display: 'inline-block',
+                            marginLeft: 5,
+                            padding: '2px 5px',
+                            color: 'white'
+                        }}>
+                            {label.name}
+                        </span>
+                    )
+                    : null
+            }
             <div style={{
                 display: 'table',
                 backgroundColor: 'white',
-                borderBottom: '1px solid #ccc',
                 borderCollapse: 'collapse',
                 height: 30,
                 width: '100%'
@@ -61,22 +84,11 @@ const PullRequestRow = ({
                     })}>
                          <img src={openedByAvatarUrl} style={style.image} width={20} />
                     </div>
-                    <div style={style.tableCell}>
+                    <div style={Object.assign({}, style.tableCell, {
+                        width: 200
+                    })}>
                         {openedByName}
                     </div>
-                </div>
-            </div> 
-            <div style={{
-                display: 'table',
-                backgroundColor: 'white',
-                borderBottom: '1px solid #ccc',
-                borderCollapse: 'collapse',
-                height: 30,
-                width: '100%'
-            }}>
-                <div style={{
-                    display: 'table-row'
-                }}>
                     <div style={Object.assign({}, style.tableCell, {
                         width: 100,
                         color: '#777',
@@ -108,6 +120,7 @@ const PullRequestRow = ({
 PullRequestRow.propTypes = {
     assigneeAvatarUrl: PropTypes.string,
     assigneeName: PropTypes.string,
+    labels: PropTypes.array,
     openedByAvatarUrl: PropTypes.string.isRequired,
     openedByName: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired

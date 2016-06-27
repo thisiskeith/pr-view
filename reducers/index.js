@@ -1,7 +1,9 @@
 import { combineReducers } from 'redux'
 import {
+    RECEIVE_PULL_REQUEST_LABELS,
     RECEIVE_PULL_REQUESTS,
     RECEIVE_REPOS,
+    REQUEST_PULL_REQUEST_LABELS,
     REQUEST_PULL_REQUESTS,
     REQUEST_REPOS
 } from '../actions'
@@ -13,6 +15,27 @@ function pullRequests(state = {
 
     switch (action.type) {
 
+    case RECEIVE_PULL_REQUEST_LABELS:
+
+        // Return default when no labels
+        if (action.labels.length === 0) {
+            return state
+        }
+
+        return Object.assign({}, state, {
+            isFetching: false,
+            repos: Object.assign({}, state.repos, {
+                [action.repo]: state.repos[action.repo].map(pr => {
+                    if (pr.number === action.prNumber) {
+                        return Object.assign({}, pr, {
+                            labels: action.labels
+                        })
+                    }
+                    return pr
+                })
+            })
+        })
+
     case RECEIVE_PULL_REQUESTS:
 
         // Return default when no PRs
@@ -20,16 +43,15 @@ function pullRequests(state = {
             return state
         }
 
-        const repos = Object.assign({}, state.repos, {
-            [action.repo]: action.pullRequests
-        })
-
         return Object.assign({}, state, {
             isFetching: false,
             lastUpdated: action.receivedAt,
-            repos
+            repos: Object.assign({}, state.repos, {
+                [action.repo]: action.pullRequests
+            })
         })
 
+    case REQUEST_PULL_REQUEST_LABELS:
     case REQUEST_PULL_REQUESTS:
         return Object.assign({}, state, {
             isFetching: true
@@ -74,6 +96,10 @@ function repos(state = {
 function githubPullRequests(state = {}, action) {
 
     switch (action.type) {
+
+    case RECEIVE_PULL_REQUEST_LABELS:
+    case REQUEST_PULL_REQUEST_LABELS:
+
 
     case RECEIVE_PULL_REQUESTS:
     case REQUEST_PULL_REQUESTS:

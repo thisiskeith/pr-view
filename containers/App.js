@@ -270,17 +270,39 @@ function mapStateToProps(state) {
             }
 
             const prs = repos[i]
-            const prsLen = prs.length
 
-            // Count PR
+            // Filter pull requests that are labeled 'not ready'
+            const filteredPullRequests = prs.filter(pr => {
+
+                if (pr.labels) {
+                    
+                    let ready = true
+
+                    pr.labels.forEach(label => {
+                        if (label.name.indexOf('not ready') !== -1) {
+                            ready = false
+                        }
+                    })
+
+                    return ready
+                }
+
+                return true
+            })
+
+            const prsLen = filteredPullRequests.length
             pullRequestCount += prsLen
+
+            if (prsLen === 0) {
+                continue
+            }
 
             // Cache PR
             reposWithPullRequests.push(Object.assign({},
                 {
                     name: i,
-                    pullRequestCount: prsLen,
-                    pullRequests: prs
+                    pullRequestCount: prsLen, 
+                    pullRequests: filteredPullRequests
                 }
             ))
 

@@ -27,7 +27,7 @@ const SidebarRow = ({
     <div style={{
         display: 'table',
         backgroundColor: 'white',
-        borderBottom: '1px solid #ccc',
+        borderBottom: '1px solid #efefef',
         borderCollapse: 'collapse',
         height: 30,
         width: '100%'
